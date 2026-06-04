@@ -247,7 +247,29 @@ layout > spacing > sizing > color > typography > state (hover/focus/disabled)
 
 ---
 
-## 9. API & Data Fetching Rules
+## 9. UI Design Philosophy
+
+```
+# Role-Based UI Complexity
+- Instructor : dashboard-style, rich layout, sidebar navigation, data tables, stat cards
+- Participant : minimal, mobile-first, single-task focused (join → answer → result)
+
+# Instructor Pages
+- Complex UI with CRUD operations, data visualization, and management tools
+- Examples: quiz list table, quiz creation form, submission analytics
+
+# Participant Pages
+- Simple forms, timer display, progress indicator, result summary card
+- No navigation complexity — each page is a single step in a linear flow
+
+# Shared Principles
+- Both roles still follow the same styling rules (Tailwind, shadcn/ui, dark mode)
+- Instructor components never leak into participant views and vice versa
+```
+
+---
+
+## 10. API & Data Fetching Rules
 
 ```
 # When to Fetch Where
