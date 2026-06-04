@@ -380,7 +380,11 @@ refactor: extract score calculation into service layer
 
 ```
 # Completed & Working
-- (none yet — project is starting)
+- [x] Next.js 16 scaffolding (App Router, TypeScript, Tailwind v4, shadcn/ui)
+- [x] Drizzle ORM setup + PostgreSQL (Docker)
+- [x] Better Auth integration (email/password)
+- [x] Instructor registration & login pages
+- [x] Route protection (proxy.ts) + redirect logic
 
 # In Progress — do not modify without confirmation
 - (none yet)
