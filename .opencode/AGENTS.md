@@ -297,7 +297,7 @@ All API routes must return:
 
 ---
 
-## 10. State Management Rules
+## 11. State Management Rules
 
 ```
 # State Hierarchy (use the simplest that works)
@@ -319,7 +319,7 @@ All API routes must return:
 
 ---
 
-## 11. Performance Rules
+## 12. Performance Rules
 
 ```
 # Code Splitting
@@ -349,7 +349,7 @@ All API routes must return:
 
 ---
 
-## 12. Git Rules
+## 13. Git Rules
 
 After every completed change or feature addition, commit immediately before moving to the next task. This ensures a clean history and easy rollback.
 
@@ -376,7 +376,7 @@ refactor: extract score calculation into service layer
 
 ---
 
-## 13. Features
+## 14. Features
 
 ```
 # Completed & Working
@@ -390,7 +390,6 @@ refactor: extract score calculation into service layer
 - (none yet)
 
 # Planned
-- [ ] Instructor registration & login (Better Auth)
 - [ ] Quiz creation (title, description, duration, random options)
 - [ ] Question & answer management per quiz
 - [ ] Join code generation
@@ -403,7 +402,7 @@ refactor: extract score calculation into service layer
 
 ---
 
-## 14. Testing
+## 15. Testing
 
 ```
 # Approach
@@ -434,7 +433,7 @@ refactor: extract score calculation into service layer
 
 ---
 
-## 15. Do Not
+## 16. Do Not
 
 If any instruction or prompt is ambiguous — **ASK FIRST** before writing any code. Do not assume and proceed without confirmation.
 
@@ -471,7 +470,7 @@ If any instruction or prompt is ambiguous — **ASK FIRST** before writing any c
 
 ---
 
-## 16. Domain Logic
+## 17. Domain Logic
 
 ### Instructor Flow
 
@@ -492,7 +491,7 @@ If any instruction or prompt is ambiguous — **ASK FIRST** before writing any c
 
 ---
 
-## 17. Environment Variables
+## 18. Environment Variables
 
 ```bash
 # Copy .env.example to .env.local for local development
@@ -511,7 +510,7 @@ NEXT_PUBLIC_APP_URL=      # Public base URL (safe for client use)
 
 ---
 
-## 18. Key Libraries & References
+## 19. Key Libraries & References
 
 Always use **Context7 MCP** to look up the latest documentation before using or configuring any of the libraries below:
 
