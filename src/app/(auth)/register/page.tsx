@@ -35,7 +35,7 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/instructor/dashboard");
+    router.push("/dashboard");
   }
 
   return (
