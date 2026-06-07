@@ -22,13 +22,13 @@ export default async function InstructorLayout({
         <h1 className="mb-8 text-xl font-bold">Qwizz</h1>
         <nav className="flex flex-col gap-2">
           <Link
-            href="/instructor/dashboard"
+            href="/dashboard"
             className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
           >
             Dashboard
           </Link>
           <Link
-            href="/instructor/quizzes"
+            href="/quizzes"
             className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
           >
             Quizzes

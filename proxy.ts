@@ -6,7 +6,12 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
-  const isProtectedPage = pathname.startsWith("/dashboard") || pathname.startsWith("/quizzes");
+  const isPublicPage = pathname.startsWith("/join") || pathname.startsWith("/quiz");
+  const isProtectedPage = (pathname.startsWith("/dashboard") || pathname.startsWith("/quizzes")) && !isPublicPage;
+
+  if (isPublicPage) {
+    return NextResponse.next();
+  }
 
   if (isAuthPage && sessionCookie) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
