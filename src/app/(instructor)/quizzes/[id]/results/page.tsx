@@ -35,6 +35,9 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             {submissions.length} submission{submissions.length !== 1 ? "s" : ""}
           </p>
         </div>
+        <Link href={`/api/quizzes/${id}/export`}>
+          <Button>Export CSV</Button>
+        </Link>
       </div>
 
       {submissions.length === 0 ? (
