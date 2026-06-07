@@ -38,7 +38,6 @@ export default async function SessionPage({ params }: SessionPageProps) {
       submissionId={sub.id}
       startedAt={sub.startedAt.toISOString()}
       duration={quizData.duration}
-      quizId={id}
     />
   );
 }

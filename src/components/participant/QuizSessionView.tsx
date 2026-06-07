@@ -10,7 +10,6 @@ interface QuizSessionViewProps {
   submissionId: string;
   startedAt: string;
   duration: number;
-  quizId: string;
 }
 
 function formatTime(seconds: number): string {
@@ -27,6 +26,7 @@ export default function QuizSessionView({
 }: QuizSessionViewProps) {
   const [timeLeft, setTimeLeft] = useState<number>(duration * 60);
   const [selected, setSelected] = useState<Record<string, string>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const selectedRef = useRef(selected);
   const submittingRef = useRef(false);
@@ -88,8 +88,7 @@ export default function QuizSessionView({
     setSelected((prev) => ({ ...prev, [questionId]: answerId }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     if (
       !confirm(
         `You have ${formatTime(timeLeft)} left. Are you sure you want to submit?`
@@ -101,9 +100,10 @@ export default function QuizSessionView({
   }
 
   const answeredCount = Object.keys(selected).length;
+  const current = questions[currentIndex];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {answeredCount} of {questions.length} answered
@@ -119,43 +119,90 @@ export default function QuizSessionView({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input type="hidden" name="submissionId" value={submissionId} />
+      <div className="mb-6 flex flex-wrap gap-2">
+        {questions.map((q, i) => {
+          const isAnswered = selected[q.id] !== undefined;
+          const isActive = i === currentIndex;
+          return (
+            <button
+              key={q.id}
+              type="button"
+              onClick={() => setCurrentIndex(i)}
+              className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : isAnswered
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/30"
+                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              }`}
+            >
+              {i + 1}
+            </button>
+          );
+        })}
+      </div>
 
-        {questions.map((q, index) => (
-          <div key={q.id} className="rounded-lg border p-4">
-            <h3 className="mb-1 font-medium">
-              <span className="text-muted-foreground">{index + 1}.</span>{" "}
-              {q.text}
-            </h3>
-            <p className="mb-3 text-sm text-muted-foreground">
-              {q.points} pt{q.points !== 1 ? "s" : ""}
-            </p>
-            <div className="space-y-2">
-              {q.answers.map((a) => (
-                <label
-                  key={a.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-md border p-3 text-sm hover:bg-muted/50 has-checked:border-primary has-checked:bg-primary/5"
-                >
-                  <input
-                    type="radio"
-                    name={`question_${q.id}`}
-                    value={a.id}
-                    checked={selected[q.id] === a.id}
-                    onChange={() => handleSelect(q.id, a.id)}
-                    className="h-4 w-4 text-primary focus:ring-ring"
-                  />
-                  {a.text}
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="rounded-lg border p-6">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            Question {currentIndex + 1} of {questions.length}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {current.points} pt{current.points !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <h3 className="mb-4 text-lg font-medium">{current.text}</h3>
 
-        <Button type="submit" className="w-full" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Answers"}
+        <div className="space-y-2">
+          {current.answers.map((a) => (
+            <label
+              key={a.id}
+              className="flex cursor-pointer items-center gap-3 rounded-md border p-3 text-sm hover:bg-muted/50 has-checked:border-primary has-checked:bg-primary/5"
+            >
+              <input
+                type="radio"
+                name={`question_${current.id}`}
+                value={a.id}
+                checked={selected[current.id] === a.id}
+                onChange={() => handleSelect(current.id, a.id)}
+                className="h-4 w-4 text-primary focus:ring-ring"
+              />
+              {a.text}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setCurrentIndex((p) => Math.max(0, p - 1))}
+          disabled={currentIndex === 0}
+        >
+          Previous
         </Button>
-      </form>
+
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleSubmit}
+          disabled={submitting}
+        >
+          {submitting ? "Submitting..." : "Submit All Answers"}
+        </Button>
+
+        {currentIndex < questions.length - 1 ? (
+          <Button
+            type="button"
+            onClick={() => setCurrentIndex((p) => p + 1)}
+          >
+            Next
+          </Button>
+        ) : (
+          <div />
+        )}
+      </div>
     </div>
   );
 }
