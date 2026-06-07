@@ -39,6 +39,9 @@ export default async function QuizDetailPage({ params }: QuizDetailPageProps) {
           </p>
         </div>
         <div className="flex gap-2">
+          <Link href={`/quizzes/${id}/results`}>
+            <Button variant="outline">Results</Button>
+          </Link>
           <Link href={`/quizzes/${id}/edit`}>
             <Button variant="outline">Edit</Button>
           </Link>

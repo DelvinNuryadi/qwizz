@@ -4,8 +4,9 @@ import {
   submissionAnswer,
   question,
   answer,
+  participant,
 } from "../../drizzle/schema/quiz-schema";
-import { eq, and, asc, sql, inArray } from "drizzle-orm";
+import { eq, and, asc, sql, inArray, desc, isNotNull } from "drizzle-orm";
 import type {
   SessionQuestion,
   SubmissionResult,
@@ -206,4 +207,41 @@ export async function getSubmissionResult(
     submittedAt: sub[0].submittedAt,
     answers: answerResults,
   };
+}
+
+export interface QuizSubmissionRow {
+  submissionId: string
+  participantId: string
+  nim: string
+  name: string
+  score: number | null
+  startedAt: Date
+  submittedAt: Date
+}
+
+export async function getQuizSubmissions(quizId: string): Promise<QuizSubmissionRow[]> {
+  const rows = await db
+    .select({
+      submissionId: submission.id,
+      participantId: participant.id,
+      nim: participant.nim,
+      name: participant.name,
+      score: submission.score,
+      startedAt: submission.startedAt,
+      submittedAt: submission.submittedAt,
+    })
+    .from(submission)
+    .innerJoin(participant, eq(participant.id, submission.participantId))
+    .where(
+      and(
+        eq(submission.quizId, quizId),
+        isNotNull(submission.submittedAt)
+      )
+    )
+    .orderBy(desc(submission.submittedAt));
+
+  return rows.map((r) => ({
+    ...r,
+    submittedAt: r.submittedAt!,
+  }));
 }
