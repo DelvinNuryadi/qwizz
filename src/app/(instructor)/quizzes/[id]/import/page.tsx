@@ -46,6 +46,15 @@ export default async function ImportPage({ params }: ImportPageProps) {
         </ul>
       </div>
 
+      <div className="mb-4">
+        <a
+          href="/api/quizzes/import-template"
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Download template CSV
+        </a>
+      </div>
+
       <ImportForm quizId={id} />
     </div>
   );
