@@ -22,7 +22,9 @@ export interface SubmissionAnswerResult {
   questionId: string
   questionText: string
   selectedAnswerId: string | null
+  selectedAnswerText: string | null
   correctAnswerId: string
+  correctAnswerText: string
   isCorrect: boolean
   points: number
 }

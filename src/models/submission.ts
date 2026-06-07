@@ -166,18 +166,16 @@ export async function getSubmissionResult(
     .from(question)
     .where(inArray(question.id, questionIds));
 
-  const correctAnswers = await db
-    .select({ id: answer.id, questionId: answer.questionId })
+  const dbAnswers = await db
+    .select({ id: answer.id, questionId: answer.questionId, text: answer.text, isCorrect: answer.isCorrect })
     .from(answer)
-    .where(
-      and(
-        inArray(answer.questionId, questionIds),
-        eq(answer.isCorrect, true)
-      )
-    );
+    .where(inArray(answer.questionId, questionIds));
 
   const questionMap = new Map(dbQuestions.map((q) => [q.id, q]));
-  const correctMap = new Map(correctAnswers.map((a) => [a.questionId, a.id]));
+  const answerTextMap = new Map(dbAnswers.map((a) => [a.id, a.text]));
+  const correctMap = new Map(
+    dbAnswers.filter((a) => a.isCorrect).map((a) => [a.questionId, a.id])
+  );
 
   let totalPoints = 0;
   let score = 0;
@@ -194,7 +192,9 @@ export async function getSubmissionResult(
       questionId: sa.questionId,
       questionText: q?.text ?? "",
       selectedAnswerId: sa.answerId,
+      selectedAnswerText: sa.answerId ? answerTextMap.get(sa.answerId) ?? null : null,
       correctAnswerId: correctId,
+      correctAnswerText: answerTextMap.get(correctId) ?? "",
       isCorrect,
       points: q?.points ?? 0,
     };

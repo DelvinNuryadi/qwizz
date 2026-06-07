@@ -77,7 +77,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-              {answer.selectedAnswerId ? (
+              {answer.selectedAnswerText ? (
                 <p>
                   Your answer:{" "}
                   <span
@@ -87,7 +87,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
                         : "font-medium text-red-700"
                     }
                   >
-                    Selected answer #{answer.selectedAnswerId.slice(0, 8)}
+                    {answer.selectedAnswerText}
                   </span>
                 </p>
               ) : (
@@ -97,7 +97,7 @@ export default async function ResultPage({ params }: ResultPageProps) {
                 <p>
                   Correct answer:{" "}
                   <span className="font-medium text-green-700">
-                    Answer #{answer.correctAnswerId.slice(0, 8)}
+                    {answer.correctAnswerText}
                   </span>
                 </p>
               )}

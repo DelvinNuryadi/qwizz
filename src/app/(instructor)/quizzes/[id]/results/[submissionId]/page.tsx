@@ -76,7 +76,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
               </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-              {answer.selectedAnswerId ? (
+              {answer.selectedAnswerText ? (
                 <p>
                   Participant&apos;s answer:{" "}
                   <span
@@ -86,7 +86,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
                         : "font-medium text-red-700"
                     }
                   >
-                    Answer #{answer.selectedAnswerId.slice(0, 8)}
+                    {answer.selectedAnswerText}
                   </span>
                 </p>
               ) : (
@@ -96,7 +96,7 @@ export default async function ResultDetailPage({ params }: ResultDetailPageProps
                 <p>
                   Correct answer:{" "}
                   <span className="font-medium text-green-700">
-                    Answer #{answer.correctAnswerId.slice(0, 8)}
+                    {answer.correctAnswerText}
                   </span>
                 </p>
               )}
