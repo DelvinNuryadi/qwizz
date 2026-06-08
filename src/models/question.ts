@@ -11,6 +11,7 @@ function toQuestionWithAnswers(row: typeof question.$inferSelect, answers: typeo
     id: row.id,
     quizId: row.quizId,
     text: row.text,
+    imageUrl: row.imageUrl,
     order: row.order,
     points: row.points,
     createdAt: row.createdAt,
@@ -66,6 +67,7 @@ export async function createQuestion(quizId: string, input: QuestionInput) {
     .values({
       quizId,
       text: input.text,
+      imageUrl: input.imageUrl ?? null,
       order: nextOrder,
       points: input.points,
     })
@@ -85,11 +87,12 @@ export async function createQuestion(quizId: string, input: QuestionInput) {
   return created;
 }
 
-export async function updateQuestion(id: string, input: { text?: string; points?: number }) {
+export async function updateQuestion(id: string, input: { text?: string; imageUrl?: string | null; points?: number }) {
   const [updated] = await db
     .update(question)
     .set({
       ...(input.text !== undefined && { text: input.text }),
+      ...(input.imageUrl !== undefined && { imageUrl: input.imageUrl }),
       ...(input.points !== undefined && { points: input.points }),
     })
     .where(eq(question.id, id))

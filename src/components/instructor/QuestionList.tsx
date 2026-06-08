@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import QuestionForm from "./QuestionForm";
 import { deleteQuestionAction } from "@/app/(instructor)/quizzes/[id]/actions";
 import type { QuestionWithAnswers } from "@/types/question";
@@ -16,10 +17,9 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this question and all its answers?")) return;
-
     try {
       await deleteQuestionAction(id);
       router.refresh();
@@ -81,6 +81,13 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                   <p className="text-sm text-muted-foreground">
                     {q.points} pt{q.points !== 1 ? "s" : ""}
                   </p>
+                  {q.imageUrl && (
+                    <img
+                      src={q.imageUrl}
+                      alt="Question image"
+                      className="mt-2 max-h-40 rounded-md border object-contain"
+                    />
+                  )}
                 </div>
                 <div className="flex gap-1">
                   <Button
@@ -93,7 +100,7 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(q.id)}
+                    onClick={() => setDeletingId(q.id)}
                   >
                     Delete
                   </Button>
@@ -118,6 +125,18 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
           )}
         </div>
       ))}
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => { if (!open) setDeletingId(null); }}
+        title="Delete Question"
+        description="Delete this question and all its answers? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deletingId) handleDelete(deletingId);
+          setDeletingId(null);
+        }}
+      />
     </div>
   );
 }

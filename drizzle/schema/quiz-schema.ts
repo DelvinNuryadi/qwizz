@@ -43,6 +43,7 @@ export const question = pgTable(
       .notNull()
       .references(() => quiz.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
+    imageUrl: text("image_url"),
     order: integer("order").notNull(),
     points: integer("points").default(1).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

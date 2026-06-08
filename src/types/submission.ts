@@ -1,6 +1,7 @@
 export interface SessionQuestion {
   id: string
   text: string
+  imageUrl: string | null
   points: number
   answers: SessionAnswer[]
 }

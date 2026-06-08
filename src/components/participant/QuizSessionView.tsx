@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { submitQuizAction } from "@/app/(participant)/quiz/[id]/actions";
 import type { SessionQuestion } from "@/types/submission";
 
@@ -88,14 +89,9 @@ export default function QuizSessionView({
     setSelected((prev) => ({ ...prev, [questionId]: answerId }));
   }
 
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+
   async function handleSubmit() {
-    if (
-      !confirm(
-        `You have ${formatTime(timeLeft)} left. Are you sure you want to submit?`
-      )
-    ) {
-      return;
-    }
     await submitNow(selected);
   }
 
@@ -153,6 +149,14 @@ export default function QuizSessionView({
         </div>
         <h3 className="mb-4 text-lg font-medium">{current.text}</h3>
 
+        {current.imageUrl && (
+          <img
+            src={current.imageUrl}
+            alt="Question image"
+            className="mb-4 max-h-60 rounded-md border object-contain"
+          />
+        )}
+
         <div className="space-y-2">
           {current.answers.map((a) => (
             <label
@@ -186,7 +190,7 @@ export default function QuizSessionView({
         <Button
           type="button"
           variant="destructive"
-          onClick={handleSubmit}
+          onClick={() => setShowSubmitConfirm(true)}
           disabled={submitting}
         >
           {submitting ? "Submitting..." : "Submit All Answers"}
@@ -203,6 +207,19 @@ export default function QuizSessionView({
           <div />
         )}
       </div>
+
+      <ConfirmDialog
+        open={showSubmitConfirm}
+        onOpenChange={setShowSubmitConfirm}
+        title="Submit Answers"
+        description={`You have ${formatTime(timeLeft)} left. Are you sure you want to submit?`}
+        confirmLabel="Submit"
+        variant="default"
+        onConfirm={() => {
+          setShowSubmitConfirm(false);
+          handleSubmit();
+        }}
+      />
     </div>
   );
 }

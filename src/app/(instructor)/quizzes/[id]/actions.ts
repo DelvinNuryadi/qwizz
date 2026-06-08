@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { uploadImage } from "@/lib/supabase";
 import {
   createQuestion,
   updateQuestion,
@@ -52,6 +53,12 @@ export async function addQuestionAction(quizId: string, formData: FormData) {
     throw new Error("Points must be a positive number");
   }
 
+  const imageFile = formData.get("image") as File | null;
+  let imageUrl: string | null = null;
+  if (imageFile && imageFile.size > 0) {
+    imageUrl = await uploadImage(imageFile, quizId);
+  }
+
   const correctIndexRaw = formData.get("correctIndex") as string | null;
   const correctIndex = correctIndexRaw ? parseInt(correctIndexRaw, 10) : -1;
 
@@ -76,7 +83,7 @@ export async function addQuestionAction(quizId: string, formData: FormData) {
   }
 
   try {
-    await createQuestion(quizId, { text: text.trim(), points, answers });
+    await createQuestion(quizId, { text: text.trim(), imageUrl, points, answers });
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -106,8 +113,19 @@ export async function updateQuestionAction(questionId: string, formData: FormDat
     throw new Error("Points must be a positive number");
   }
 
+  let imageUrl: string | undefined | null = undefined;
+  const removeImage = formData.get("removeImage") === "true";
+  if (removeImage) {
+    imageUrl = null;
+  } else {
+    const imageFile = formData.get("image") as File | null;
+    if (imageFile && imageFile.size > 0) {
+      imageUrl = await uploadImage(imageFile, quizId);
+    }
+  }
+
   try {
-    await updateQuestion(questionId, { text: text.trim(), points });
+    await updateQuestion(questionId, { text: text.trim(), imageUrl, points });
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

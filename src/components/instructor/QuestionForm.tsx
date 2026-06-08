@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Image, X } from "lucide-react";
 import {
   addQuestionAction,
   updateQuestionAction,
@@ -32,6 +33,12 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
       ? initialData.answers.map((a) => ({ text: a.text }))
       : [{ text: "" }, { text: "" }]
   );
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialData?.imageUrl ?? null
+  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function addAnswer() {
     if (answers.length >= 5) return;
@@ -54,6 +61,24 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
     setAnswers(updated);
   }
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setRemoveImage(false);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -61,6 +86,16 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
 
     try {
       const formData = new FormData(e.currentTarget);
+
+      if (imageFile) {
+        formData.set("image", imageFile);
+      } else {
+        formData.delete("image");
+      }
+
+      if (removeImage) {
+        formData.set("removeImage", "true");
+      }
 
       if (isEdit && initialData) {
         await updateQuestionAction(initialData.id, formData);
@@ -88,6 +123,50 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
           required
         />
       </div>
+
+      <div className="grid gap-2">
+        <Label>Image (optional)</Label>
+        {imagePreview ? (
+          <div className="relative inline-flex">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="max-h-48 rounded-md border object-contain"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleRemoveImage}
+              className="absolute top-1 right-1 size-6 rounded-full bg-background/80 p-0"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <input
+              ref={fileInputRef}
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Image className="mr-2 size-4" />
+              Choose Image
+            </Button>
+          </div>
+        )}
+      </div>
+
       <div className="grid gap-2">
         <Label htmlFor="points">Points</Label>
         <Input
@@ -99,6 +178,7 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
           required
         />
       </div>
+
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label>Answers</Label>
@@ -145,7 +225,9 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
           Select the radio button next to the correct answer.
         </p>
       </div>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
+
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>
           {loading ? "Saving..." : isEdit ? "Save Changes" : "Add Question"}

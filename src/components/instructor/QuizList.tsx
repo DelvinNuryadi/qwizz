@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { deleteQuizAction } from "@/app/(instructor)/quizzes/actions";
 import type { QuizWithCounts } from "@/types/quiz";
 
@@ -12,14 +14,13 @@ interface QuizListProps {
 
 export function QuizList({ quizzes }: QuizListProps) {
   const router = useRouter();
+  const [deletingQuiz, setDeletingQuiz] = useState<{ id: string; title: string } | null>(null);
 
-  async function handleDelete(id: string, title: string) {
-    if (!confirm(`Delete "${title}"? This action cannot be undone.`)) {
-      return;
-    }
+  async function handleDelete() {
+    if (!deletingQuiz) return;
 
     try {
-      await deleteQuizAction(id);
+      await deleteQuizAction(deletingQuiz.id);
       router.refresh();
     } catch {
       alert("Failed to delete quiz. Please try again.");
@@ -71,7 +72,7 @@ export function QuizList({ quizzes }: QuizListProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(quizItem.id, quizItem.title)}
+                    onClick={() => setDeletingQuiz({ id: quizItem.id, title: quizItem.title })}
                   >
                     Delete
                   </Button>
@@ -81,6 +82,18 @@ export function QuizList({ quizzes }: QuizListProps) {
           ))}
         </tbody>
       </table>
+
+      <ConfirmDialog
+        open={deletingQuiz !== null}
+        onOpenChange={(open) => { if (!open) setDeletingQuiz(null); }}
+        title="Delete Quiz"
+        description={deletingQuiz ? `Delete "${deletingQuiz.title}"? This action cannot be undone.` : ""}
+        confirmLabel="Delete"
+        onConfirm={() => {
+          handleDelete();
+          setDeletingQuiz(null);
+        }}
+      />
     </div>
   );
 }

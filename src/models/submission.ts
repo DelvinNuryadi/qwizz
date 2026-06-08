@@ -74,6 +74,7 @@ export async function getSessionQuestions(
   return questions.map((q) => ({
     id: q.id,
     text: q.text,
+    imageUrl: q.imageUrl,
     points: q.points,
     answers: (answerMap.get(q.id) ?? []).map((a) => ({
       id: a.id,

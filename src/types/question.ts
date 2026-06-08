@@ -6,6 +6,7 @@ export interface AnswerInput {
 
 export interface QuestionInput {
   text: string
+  imageUrl?: string | null
   points: number
   answers: AnswerInput[]
 }
@@ -14,6 +15,7 @@ export interface QuestionWithAnswers {
   id: string
   quizId: string
   text: string
+  imageUrl: string | null
   order: number
   points: number
   createdAt: Date
