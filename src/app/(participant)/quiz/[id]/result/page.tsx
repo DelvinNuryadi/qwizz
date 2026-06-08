@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getParticipantSession } from "@/services/participant";
 import { getQuizById } from "@/models/quiz";
 import { getSubmissionByParticipant, getSubmissionResult } from "@/models/submission";
-import { CheckCircle, XCircle } from "lucide-react";
+import { ResultItem } from "@/components/participant/ResultItem";
 
 interface ResultPageProps {
   params: Promise<{ id: string }>;
@@ -52,57 +52,15 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
       <div className="space-y-4">
         {result.answers.map((answer, i) => (
-          <div
+          <ResultItem
             key={answer.questionId}
-            className={`rounded-lg border p-4 ${
-              answer.isCorrect ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"
-            }`}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <p className="font-medium">
-                  <span className="text-muted-foreground">{i + 1}.</span>{" "}
-                  {answer.questionText}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {answer.points} pt{answer.points !== 1 ? "s" : ""}
-                </p>
-              </div>
-              <div className="flex-shrink-0">
-                {answer.isCorrect ? (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : (
-                  <XCircle className="h-5 w-5 text-red-600" />
-                )}
-              </div>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-              {answer.selectedAnswerText ? (
-                <p>
-                  Your answer:{" "}
-                  <span
-                    className={
-                      answer.isCorrect
-                        ? "font-medium text-green-700"
-                        : "font-medium text-red-700"
-                    }
-                  >
-                    {answer.selectedAnswerText}
-                  </span>
-                </p>
-              ) : (
-                <p className="font-medium text-amber-700">Not answered</p>
-              )}
-              {!answer.isCorrect && (
-                <p>
-                  Correct answer:{" "}
-                  <span className="font-medium text-green-700">
-                    {answer.correctAnswerText}
-                  </span>
-                </p>
-              )}
-            </div>
-          </div>
+            index={i}
+            questionText={answer.questionText}
+            points={answer.points}
+            isCorrect={answer.isCorrect}
+            selectedAnswerText={answer.selectedAnswerText}
+            correctAnswerText={answer.correctAnswerText}
+          />
         ))}
       </div>
     </div>

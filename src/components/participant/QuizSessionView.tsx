@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LatexText } from "@/components/shared/LatexText";
 import { submitQuizAction } from "@/app/(participant)/quiz/[id]/actions";
 import type { SessionQuestion } from "@/types/submission";
 
@@ -147,7 +148,9 @@ export default function QuizSessionView({
             {current.points} pt{current.points !== 1 ? "s" : ""}
           </span>
         </div>
-        <h3 className="mb-4 text-lg font-medium">{current.text}</h3>
+        <h3 className="mb-4 text-lg font-medium">
+          <LatexText text={current.text} />
+        </h3>
 
         {current.imageUrl && (
           <img
@@ -171,7 +174,7 @@ export default function QuizSessionView({
                 onChange={() => handleSelect(current.id, a.id)}
                 className="h-4 w-4 text-primary focus:ring-ring"
               />
-              {a.text}
+              <LatexText text={a.text} />
             </label>
           ))}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { LatexText } from "@/components/shared/LatexText";
 import QuestionForm from "./QuestionForm";
 import { deleteQuestionAction } from "@/app/(instructor)/quizzes/[id]/actions";
 import type { QuestionWithAnswers } from "@/types/question";
@@ -76,7 +77,7 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                 <div className="flex-1">
                   <h3 className="font-medium">
                     <span className="text-muted-foreground">{index + 1}.</span>{" "}
-                    {q.text}
+                    <LatexText text={q.text} />
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {q.points} pt{q.points !== 1 ? "s" : ""}
@@ -116,8 +117,8 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                         : "text-muted-foreground"
                     }`}
                   >
-                    {a.isCorrect ? "✓ " : ""}
-                    {a.text}
+                    {a.isCorrect ? "\u2713 " : ""}
+                    <LatexText text={a.text} />
                   </li>
                 ))}
               </ul>
