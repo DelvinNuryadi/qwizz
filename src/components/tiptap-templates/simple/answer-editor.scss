@@ -1,0 +1,18 @@
+.answer-editor-form.simple-editor-wrapper {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  .simple-editor-content {
+    max-width: none;
+
+    .tiptap.ProseMirror.simple-editor.answer-editor {
+      min-height: 48px;
+      max-height: 150px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+}

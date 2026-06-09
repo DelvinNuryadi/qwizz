@@ -1,6 +1,6 @@
 "use client";
 
-import { LatexText } from "@/components/shared/LatexText";
+import { LatexHtml } from "@/components/shared/LatexHtml";
 import { CheckCircle, XCircle } from "lucide-react";
 
 interface ResultItemProps {
@@ -30,7 +30,7 @@ export function ResultItem({
         <div className="flex-1">
           <p className="font-medium">
             <span className="text-muted-foreground">{index + 1}.</span>{" "}
-            <LatexText text={questionText} />
+            <LatexHtml html={questionText} />
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             {points} pt{points !== 1 ? "s" : ""}
@@ -46,8 +46,8 @@ export function ResultItem({
       </div>
       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
         {selectedAnswerText ? (
-          <p>
-            Your answer:{" "}
+          <p className="flex items-center gap-1">
+            <span>Your answer:</span>{" "}
             <span
               className={
                 isCorrect
@@ -55,17 +55,17 @@ export function ResultItem({
                   : "font-medium text-red-700"
               }
             >
-              <LatexText text={selectedAnswerText} />
+              <LatexHtml html={selectedAnswerText} className="inline-block" />
             </span>
           </p>
         ) : (
           <p className="font-medium text-amber-700">Not answered</p>
         )}
         {!isCorrect && (
-          <p>
-            Correct answer:{" "}
+          <p className="flex items-center gap-1">
+            <span>Correct answer:</span>{" "}
             <span className="font-medium text-green-700">
-              <LatexText text={correctAnswerText} />
+              <LatexHtml html={correctAnswerText} className="inline-block" />
             </span>
           </p>
         )}

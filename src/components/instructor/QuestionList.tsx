@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { LatexText } from "@/components/shared/LatexText";
+import { LatexHtml } from "@/components/shared/LatexHtml";
 import QuestionForm from "./QuestionForm";
 import { deleteQuestionAction } from "@/app/(instructor)/quizzes/[id]/actions";
 import type { QuestionWithAnswers } from "@/types/question";
@@ -77,7 +77,7 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                 <div className="flex-1">
                   <h3 className="font-medium">
                     <span className="text-muted-foreground">{index + 1}.</span>{" "}
-                    <LatexText text={q.text} />
+                    <LatexHtml html={q.text} />
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {q.points} pt{q.points !== 1 ? "s" : ""}
@@ -86,7 +86,7 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                     <img
                       src={q.imageUrl}
                       alt="Question image"
-                      className="mt-2 max-h-40 rounded-md border object-contain"
+                      className="mt-2 max-h-40 max-w-xs rounded-md border object-contain"
                     />
                   )}
                 </div>
@@ -117,8 +117,10 @@ export function QuestionList({ quizId, questions }: QuestionListProps) {
                         : "text-muted-foreground"
                     }`}
                   >
-                    {a.isCorrect ? "\u2713 " : ""}
-                    <LatexText text={a.text} />
+                    <span className="flex items-center gap-1">
+                      {a.isCorrect ? "\u2713 " : ""}
+                      <LatexHtml html={a.text} className="inline-block" />
+                    </span>
                   </li>
                 ))}
               </ul>

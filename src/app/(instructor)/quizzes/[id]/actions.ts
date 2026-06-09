@@ -8,6 +8,7 @@ import { uploadImage } from "@/lib/supabase";
 import {
   createQuestion,
   updateQuestion,
+  updateQuestionAnswers,
   deleteQuestion,
   getQuizIdByQuestionId,
 } from "@/models/question";
@@ -124,13 +125,52 @@ export async function updateQuestionAction(questionId: string, formData: FormDat
     }
   }
 
+  const correctIndexRaw = formData.get("correctIndex") as string | null;
+  const correctIndex = correctIndexRaw ? parseInt(correctIndexRaw, 10) : -1;
+
+  const answers: { id?: string; text: string; isCorrect: boolean; order: number }[] = [];
+
+  for (let i = 0; i < 5; i++) {
+    const answerText = formData.get(`answer_${i}`) as string | null;
+    const answerId = formData.get(`answer_id_${i}`) as string | null;
+    if (!answerText?.trim()) continue;
+    answers.push({
+      ...(answerId && { id: answerId }),
+      text: answerText.trim(),
+      isCorrect: i === correctIndex,
+      order: i,
+    });
+  }
+
+  if (answers.length < 2) {
+    throw new Error("At least 2 answers are required");
+  }
+
+  if (!answers.some((a) => a.isCorrect)) {
+    throw new Error("One answer must be marked as correct");
+  }
+
   try {
     await updateQuestion(questionId, { text: text.trim(), imageUrl, points });
+    await updateQuestionAnswers(questionId, answers);
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 
   revalidatePath(`/quizzes/${quizId}`);
+}
+
+export async function uploadTiptapImageAction(quizId: string, formData: FormData) {
+  const session = await requireSession();
+  await requireQuizOwner(quizId, session.user.id);
+
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) {
+    throw new Error("No file provided");
+  }
+
+  const url = await uploadImage(file, quizId);
+  return { url };
 }
 
 export async function deleteQuestionAction(questionId: string) {
@@ -179,8 +219,25 @@ function parseCSVLine(line: string): string[] {
 
 interface ParsedRow {
   text: string
+  imageUrl?: string | null
   points: number
   answers: { text: string; isCorrect: boolean; order: number }[]
+}
+
+function convertLatexToHtml(text: string): string {
+  // First, convert block math $$ ... $$
+  let html = text.replace(/\$\$(.*?)\$\$/g, (_, latex) => {
+    return `<span data-type="block-math" data-latex="${latex.trim()}">$$${latex.trim()}$$</span>`;
+  });
+  // Then, convert inline math $ ... $
+  html = html.replace(/\$(.*?)\$/g, (_, latex) => {
+    return `<span data-type="inline-math" data-latex="${latex.trim()}">${latex.trim()}</span>`;
+  });
+  // Wrap in <p> if it doesn't look like HTML
+  if (!html.startsWith("<p>") && !html.startsWith("<div>") && !html.startsWith("<h")) {
+    html = `<p>${html}</p>`;
+  }
+  return html;
 }
 
 function parseCSV(content: string): ParsedRow[] {
@@ -192,6 +249,7 @@ function parseCSV(content: string): ParsedRow[] {
 
   const qIdx = headerLower.findIndex((h) => h === "question" || h === "text");
   const pIdx = headerLower.findIndex((h) => h === "points" || h === "point" || h === "score");
+  const imgIdx = headerLower.findIndex((h) => h === "image" || h === "imageurl" || h === "image_url");
   const correctIdx = headerLower.findIndex(
     (h) => h === "correctindex" || h === "correct_index" || h === "correct" || h === "key"
   );
@@ -214,6 +272,7 @@ function parseCSV(content: string): ParsedRow[] {
     if (!text) continue;
 
     const points = pIdx !== -1 && cols[pIdx] ? parseInt(cols[pIdx], 10) : 1;
+    const imageUrl = imgIdx !== -1 ? cols[imgIdx]?.trim() || null : null;
     const correctIndex = parseInt(cols[correctIdx], 10);
 
     const answers: { text: string; isCorrect: boolean; order: number }[] = [];
@@ -223,7 +282,7 @@ function parseCSV(content: string): ParsedRow[] {
       const answerText = cols[colIdx]?.trim();
       if (!answerText) continue;
       answers.push({
-        text: answerText,
+        text: convertLatexToHtml(answerText),
         isCorrect: aOrder === correctIndex,
         order: aOrder,
       });
@@ -238,7 +297,12 @@ function parseCSV(content: string): ParsedRow[] {
       throw new Error(`Row ${i}: CorrectIndex ${correctIndex} is out of range (0-${answers.length - 1})`);
     }
 
-    rows.push({ text, points: isNaN(points) ? 1 : points, answers });
+    rows.push({
+      text: convertLatexToHtml(text),
+      imageUrl,
+      points: isNaN(points) ? 1 : points,
+      answers,
+    });
   }
 
   if (rows.length === 0) throw new Error("No valid data rows found");

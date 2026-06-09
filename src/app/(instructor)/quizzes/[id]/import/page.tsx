@@ -36,11 +36,12 @@ export default async function ImportPage({ params }: ImportPageProps) {
           Your CSV must have a header row with these columns:
         </p>
         <code className="block rounded bg-muted px-3 py-2 font-mono text-xs leading-relaxed">
-          Question,Points,Answer1,Answer2,Answer3,Answer4,Answer5,CorrectIndex
+          Question,Points,ImageUrl,Answer1,Answer2,Answer3,Answer4,Answer5,CorrectIndex
         </code>
         <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
           <li><strong className="text-foreground">Question</strong> — question text (required)</li>
           <li><strong className="text-foreground">Points</strong> — points for the question (default 1)</li>
+          <li><strong className="text-foreground">ImageUrl</strong> — URL of the question image (optional)</li>
           <li><strong className="text-foreground">Answer1-5</strong> — answer options (at least 2 required)</li>
           <li><strong className="text-foreground">CorrectIndex</strong> — 0-based index of correct answer (0 = Answer1)</li>
         </ul>

@@ -101,6 +101,47 @@ export async function updateQuestion(id: string, input: { text?: string; imageUr
   return updated;
 }
 
+export async function updateQuestionAnswers(
+  questionId: string,
+  answersInput: { id?: string; text: string; isCorrect: boolean; order: number }[]
+) {
+  const existingAnswers = await db
+    .select()
+    .from(answer)
+    .where(eq(answer.questionId, questionId));
+
+  const existingIds = new Set(existingAnswers.map((a) => a.id));
+  const inputIds = new Set(answersInput.map((a) => a.id).filter(Boolean) as string[]);
+
+  const idsToDelete = existingAnswers
+    .map((a) => a.id)
+    .filter((id) => !inputIds.has(id));
+
+  if (idsToDelete.length > 0) {
+    await db.delete(answer).where(inArray(answer.id, idsToDelete));
+  }
+
+  for (const a of answersInput) {
+    if (a.id && existingIds.has(a.id)) {
+      await db
+        .update(answer)
+        .set({
+          text: a.text,
+          isCorrect: a.isCorrect,
+          order: a.order,
+        })
+        .where(eq(answer.id, a.id));
+    } else {
+      await db.insert(answer).values({
+        questionId,
+        text: a.text,
+        isCorrect: a.isCorrect,
+        order: a.order,
+      });
+    }
+  }
+}
+
 export async function deleteQuestion(id: string) {
   await db.delete(question).where(eq(question.id, id));
 }

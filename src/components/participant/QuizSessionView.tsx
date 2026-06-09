@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { LatexText } from "@/components/shared/LatexText";
+import { LatexHtml } from "@/components/shared/LatexHtml";
 import { submitQuizAction } from "@/app/(participant)/quiz/[id]/actions";
 import type { SessionQuestion } from "@/types/submission";
 
@@ -106,11 +106,10 @@ export default function QuizSessionView({
           {answeredCount} of {questions.length} answered
         </p>
         <div
-          className={`rounded-lg px-4 py-2 font-mono text-xl font-bold tabular-nums ${
-            timeLeft < 60
-              ? "bg-destructive/10 text-destructive"
-              : "bg-muted"
-          }`}
+          className={`rounded-lg px-4 py-2 font-mono text-xl font-bold tabular-nums ${timeLeft < 60
+            ? "bg-destructive/10 text-destructive"
+            : "bg-muted"
+            }`}
         >
           {formatTime(timeLeft)}
         </div>
@@ -125,13 +124,12 @@ export default function QuizSessionView({
               key={q.id}
               type="button"
               onClick={() => setCurrentIndex(i)}
-              className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : isAnswered
-                    ? "bg-primary/10 text-primary ring-1 ring-primary/30"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              }`}
+              className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors ${isActive
+                ? "bg-primary text-primary-foreground"
+                : isAnswered
+                  ? "bg-primary/10 text-primary ring-1 ring-primary/30"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                }`}
             >
               {i + 1}
             </button>
@@ -149,14 +147,14 @@ export default function QuizSessionView({
           </span>
         </div>
         <h3 className="mb-4 text-lg font-medium">
-          <LatexText text={current.text} />
+          <LatexHtml html={current.text} />
         </h3>
 
         {current.imageUrl && (
           <img
             src={current.imageUrl}
             alt="Question image"
-            className="mb-4 max-h-60 rounded-md border object-contain"
+            className="mb-4 max-h-60 max-w-sm rounded-md border object-contain"
           />
         )}
 
@@ -174,7 +172,7 @@ export default function QuizSessionView({
                 onChange={() => handleSelect(current.id, a.id)}
                 className="h-4 w-4 text-primary focus:ring-ring"
               />
-              <LatexText text={a.text} />
+              <LatexHtml html={a.text} className="inline-block" />
             </label>
           ))}
         </div>

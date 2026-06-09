@@ -4,7 +4,10 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Image, X } from "lucide-react";
+import { Image, Eye, EyeOff, X } from "lucide-react";
+import { QuestionEditor } from "@/components/tiptap-templates/simple/question-editor";
+import { AnswerEditor } from "@/components/tiptap-templates/simple/answer-editor";
+import { LatexHtml } from "@/components/shared/LatexHtml";
 import {
   addQuestionAction,
   updateQuestionAction,
@@ -12,6 +15,7 @@ import {
 import type { QuestionWithAnswers } from "@/types/question";
 
 interface AnswerRow {
+  id?: string;
   text: string;
 }
 
@@ -30,7 +34,7 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
   );
   const [answers, setAnswers] = useState<AnswerRow[]>(
     initialData
-      ? initialData.answers.map((a) => ({ text: a.text }))
+      ? initialData.answers.map((a) => ({ id: a.id, text: a.text }))
       : [{ text: "" }, { text: "" }]
   );
   const [imagePreview, setImagePreview] = useState<string | null>(
@@ -38,6 +42,8 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
+  const [previewAnswers, setPreviewAnswers] = useState<number[]>([]);
+  const [questionHtml, setQuestionHtml] = useState(initialData?.text ?? "<p></p>");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function addAnswer() {
@@ -57,7 +63,7 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
   }
 
   function updateAnswer(index: number, text: string) {
-    const updated = answers.map((a, i) => (i === index ? { text } : a));
+    const updated = answers.map((a, i) => (i === index ? { ...a, text } : a));
     setAnswers(updated);
   }
 
@@ -114,13 +120,14 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
     <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-4">
       <div className="grid gap-2">
         <Label htmlFor="text">Question</Label>
-        <textarea
-          id="text"
+        <input
+          type="hidden"
           name="text"
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Enter the question"
-          defaultValue={initialData?.text ?? ""}
-          required
+          value={questionHtml}
+        />
+        <QuestionEditor
+          value={initialData?.text ?? "<p></p>"}
+          onChange={setQuestionHtml}
         />
       </div>
 
@@ -131,7 +138,7 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
             <img
               src={imagePreview}
               alt="Preview"
-              className="max-h-48 rounded-md border object-contain"
+              className="max-h-48 max-w-xs rounded-md border object-contain"
             />
             <Button
               type="button"
@@ -189,35 +196,71 @@ export default function QuestionForm({ quizId, initialData, onClose }: QuestionF
           )}
         </div>
         {answers.map((answer, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <input
-              type="radio"
-              name="correctIndex"
-              value={index}
-              checked={correctIndex === index}
-              onChange={() => setCorrectIndex(index)}
-              className="mt-3 h-4 w-4 shrink-0 text-primary focus:ring-ring"
-            />
-            <div className="flex-1">
-              <Input
-                type="text"
-                placeholder={`Answer ${index + 1}`}
-                value={answer.text}
-                onChange={(e) => updateAnswer(index, e.target.value)}
-                name={`answer_${index}`}
-                required
+          <div key={index} className="space-y-1">
+            <div className="flex items-start gap-2">
+              <input
+                type="radio"
+                name="correctIndex"
+                value={index}
+                checked={correctIndex === index}
+                onChange={() => setCorrectIndex(index)}
+                className="mt-3 h-4 w-4 shrink-0 text-primary focus:ring-ring"
               />
-            </div>
-            {answers.length > 2 && (
+              <div className="flex-1">
+                {answer.id && (
+                  <input
+                    type="hidden"
+                    name={`answer_id_${index}`}
+                    value={answer.id}
+                  />
+                )}
+                <input
+                  type="hidden"
+                  name={`answer_${index}`}
+                  value={answer.text}
+                />
+                <AnswerEditor
+                  value={answer.text}
+                  onChange={(html) => updateAnswer(index, html)}
+                  placeholder={`Answer ${index + 1}`}
+                />
+              </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => removeAnswer(index)}
-                className="mt-1 text-destructive"
+                onClick={() =>
+                  setPreviewAnswers((prev) =>
+                    prev.includes(index)
+                      ? prev.filter((i) => i !== index)
+                      : [...prev, index]
+                  )
+                }
+                className="mt-1"
+                title="Toggle preview"
               >
-                X
+                {previewAnswers.includes(index) ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
               </Button>
+              {answers.length > 2 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeAnswer(index)}
+                  className="mt-1 text-destructive"
+                >
+                  X
+                </Button>
+              )}
+            </div>
+            {previewAnswers.includes(index) && answer.text && (
+              <div className="ml-6 rounded-md border bg-muted/30 p-2 text-sm">
+                <LatexHtml html={answer.text} />
+              </div>
             )}
           </div>
         ))}

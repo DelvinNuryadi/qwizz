@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import renderMathInElement from "katex/contrib/auto-render";
 
 interface LatexTextProps {
@@ -8,7 +8,7 @@ interface LatexTextProps {
   className?: string;
 }
 
-export function LatexText({ text, className }: LatexTextProps) {
+export const LatexText = memo(function LatexText({ text, className }: LatexTextProps) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -28,4 +28,5 @@ export function LatexText({ text, className }: LatexTextProps) {
       {text}
     </span>
   );
-}
+});
+
